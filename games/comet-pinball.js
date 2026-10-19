@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const c=document.querySelector('#field'),g=c.getContext('2d'),W=560,H=450,$=s=>document.querySelector(s),msg=$('#message'),start=$('#start'),controls=$('#controls');
 let score=0,best=0,lives=3,state='menu',ball={x:509,y:360,vx:0,vy:0,r:9},pressed={left:false,right:false},bumpers=[{x:145,y:158,r:29,color:'#d9a9ff'},{x:286,y:112,r:31,color:'#86fff2'},{x:413,y:177,r:28,color:'#ffb4dd'},{x:278,y:255,r:22,color:'#e3dc8a'}],particles=[],last=0,raf=0,sound=false,ac,flash=0,shooter=true,flipperCooldown=0;
-try{best=Number(localStorage.getItem('nova-comet-pinball-best')||0)}catch{}$('#best').textContent=best;
+try{best=Number(Math.max(Number(localStorage.getItem('nova-comet-pinball-best')||0),Number(localStorage.getItem('nova-arcade-machine-comet-pinball')||0))||0)}catch{}$('#best').textContent=best;
 function tone(freq){if(!sound)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();let o=ac.createOscillator(),v=ac.createGain();o.type='triangle';o.frequency.value=freq;v.gain.value=.02;o.connect(v).connect(ac.destination);o.start();v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.09);o.stop(ac.currentTime+.1)}catch{}}
 $('#soundtoggle').onclick=()=>{sound=!sound;$('#soundtoggle').textContent='Sound: '+(sound?'On':'Off');$('#soundtoggle').setAttribute('aria-pressed',String(sound))};
 function scorePoint(n){score+=n;$('#score').textContent=score;if(score>best){best=score;$('#best').textContent=best;try{localStorage.setItem('nova-comet-pinball-best',best)}catch{}}}
