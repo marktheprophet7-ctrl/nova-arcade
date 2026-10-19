@@ -18,7 +18,7 @@ for(const page of ['index.html','games/play.html','games/arcade-collection.html'
     try{new Function(js)}catch(e){errors.push(page+': inline JS syntax error '+e.message)}
   }
 }
-for(const game of ['laser-mirrors','beat-forge','comet-pinball']){
+for(const game of ['laser-mirrors','beat-forge','comet-pinball','hex-mines']){
  const htmlFile='games/'+game+'.html',scriptFile='games/'+game+'.js',coverFile='art/'+game+'.webp';
  for(const file of [htmlFile,scriptFile,coverFile])if(!exists(file))errors.push('Missing migrated V15 source: '+file);
  if(!exists(htmlFile)||!exists(scriptFile)||!exists(coverFile))continue;
@@ -35,5 +35,5 @@ try{new Function(read('games/machine-tools.js'))}catch(e){errors.push('machine-t
 if(errors.length){console.error(errors.map(e=>'✘ '+e).join('\n'));process.exit(1)}
 console.log('✔ 30 working homepage routes');
 console.log('✔ Inline game scripts parse');
-console.log('✔ 3 V15 standalone engines, pages and matching WebP covers');
+console.log('✔ 4 V15 standalone engines, pages and matching WebP covers');
 console.log('✔ Retro machine styles and tools');
