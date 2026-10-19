@@ -1,0 +1,25 @@
+(()=>{'use strict';
+const c=document.querySelector('#field'),g=c.getContext('2d'),W=560,H=450,$=s=>document.querySelector(s),start=$('#start'),msg=$('#message'),controls=$('#controls');
+const cols=6,rows=6,S=56,OX=112,OY=55,D=[[1,0],[0,1],[-1,0],[0,-1]],patterns=[
+{start:[0,2,0],target:[5,1],mirrors:[[2,2,'\\'],[2,4,'\\'],[5,4,'/']]},
+{start:[1,0,1],target:[4,5],mirrors:[[1,3,'\\'],[4,3,'\\']]},
+{start:[5,1,2],target:[0,4],mirrors:[[3,1,'/'],[3,4,'/']]}
+];
+let score=0,best=0,level=0,board=[],state='menu',selected=0,beam=[],hits=false,sound=false,ac,timer=null;
+try{best=+(localStorage.getItem('nova-laser-mirrors-best')||0)}catch{}$('#best').textContent=best;
+function tone(f){if(!sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();let o=ac.createOscillator(),v=ac.createGain();o.type='sine';o.frequency.value=f;v.gain.value=.035;o.connect(v);v.connect(ac.destination);o.start();v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.11);o.stop(ac.currentTime+.12)}catch{}}
+$('#soundtoggle').onclick=()=>{sound=!sound;$('#soundtoggle').textContent='Sound: '+(sound?'On':'Off');$('#soundtoggle').setAttribute('aria-pressed',String(sound))};
+function newBoard(){clearTimeout(timer);let p=patterns[(level-1)%patterns.length];board=p.mirrors.map(([x,y,ch])=>({x,y,ch:Math.random()<.5?ch:(ch==='/'?'\\':'/'),correct:ch}));state='play';msg.textContent='Rotate reflectors · Level '+level;start.textContent='NEW PUZZLE';trace();draw();}
+function startGame(){clearTimeout(timer);level=1;score=0;$('#score').textContent='0';newBoard()}
+function trace(){let p=patterns[(level-1)%patterns.length],px=p.start[0],py=p.start[1],dir=p.start[2],visited=new Set();beam=[[px,py]];hits=false;
+for(let step=0;step<40;step++){const key=px+','+py+','+dir;if(visited.has(key))break;visited.add(key);const m=board.find(v=>v.x===px&&v.y===py);if(m){const [dx,dy]=D[dir],nx=m.ch==='/'?-dy:dy,ny=m.ch==='/'?-dx:dx;dir=D.findIndex(([a,b])=>a===nx&&b===ny)}px+=D[dir][0];py+=D[dir][1];beam.push([px,py]);if(px===p.target[0]&&py===p.target[1]){hits=true;break}if(px<0||py<0||px>=cols||py>=rows)break}}
+function rotate(index){if(state!=='play')return;let m=board[index];if(!m)return;m.ch=m.ch==='/'?'\\':'/';selected=index;trace();tone(410);if(hits){const points=100+Math.max(0,50-level*3);score+=points;$('#score').textContent=score;if(score>best){best=score;$('#best').textContent=best;try{localStorage.setItem('nova-laser-mirrors-best',best)}catch{}}state='solved';msg.textContent='REACTOR POWERED! +'+points+' · Next puzzle loading';tone(880);timer=setTimeout(()=>{level++;newBoard()},1250)}draw()}
+function rounded(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r)}
+function draw(){let grad=g.createLinearGradient(0,0,W,H);grad.addColorStop(0,'#11182b');grad.addColorStop(1,'#080e19');g.fillStyle=grad;g.fillRect(0,0,W,H);for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){let cx=OX+x*S,cy=OY+y*S;g.fillStyle=(x+y)%2?'#131e32':'#18243b';rounded(cx-25,cy-25,50,50,8);g.fill();g.strokeStyle='#4c69834a';g.stroke()}
+let p=patterns[(level?level-1:0)%patterns.length];g.strokeStyle='#ffcd75';g.lineWidth=4;g.shadowColor='#ffd27b';g.shadowBlur=14;g.beginPath();beam.forEach(([x,y],i)=>{let a=OX+x*S,b=OY+y*S;if(i===0)g.moveTo(a,b);else g.lineTo(a,b)});g.stroke();g.shadowBlur=0;g.lineWidth=1;
+for(let i=0;i<board.length;i++){let m=board[i],cx=OX+m.x*S,cy=OY+m.y*S;g.fillStyle=i===selected?'#425b76':'#33455e';rounded(cx-20,cy-20,40,40,8);g.fill();g.strokeStyle=i===selected?'#ffce83':'#7a9bab';g.lineWidth=2;g.stroke();g.font='900 29px system-ui';g.fillStyle='#d9f4ff';g.textAlign='center';g.fillText(m.ch,cx,cy+10)}
+let tx=OX+p.target[0]*S,ty=OY+p.target[1]*S;g.shadowColor=hits?'#94ffb5':'#ffb864';g.shadowBlur=23;g.fillStyle=hits?'#9fffba':'#ffdb86';g.beginPath();g.arc(tx,ty,12,0,Math.PI*2);g.fill();g.shadowBlur=0;g.fillStyle='#111d30';g.font='900 14px system-ui';g.textAlign='center';g.fillText('◆',tx,ty+5);let sx=OX+p.start[0]*S,sy=OY+p.start[1]*S;g.fillStyle='#8dffe5';g.beginPath();g.arc(sx,sy,11,0,7);g.fill();g.font='800 15px system-ui';g.fillStyle='#b6cde7';g.fillText('LEVEL '+Math.max(level,1),W/2,28);if(state==='menu'){g.fillStyle='#050915ba';g.fillRect(0,0,W,H);g.font='900 34px system-ui';g.fillStyle='#fff';g.fillText('LASER MIRRORS',W/2,205);g.font='700 16px system-ui';g.fillStyle='#ffcf8a';g.fillText('PRESS START TO CONNECT THE BEAM',W/2,239)}}
+function input(e){let r=c.getBoundingClientRect(),x=Math.round((((e.clientX-r.left)/r.width)*W-OX)/S),y=Math.round((((e.clientY-r.top)/r.height)*H-OY)/S);let i=board.findIndex(m=>m.x===x&&m.y===y);if(i>=0)rotate(i)}c.addEventListener('pointerdown',input);
+document.addEventListener('keydown',e=>{if(state!=='play')return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();if((e.key===' '||e.key==='Enter')&&!e.repeat){rotate(selected);return}if(e.key.startsWith('Arrow')){selected=(selected+(e.key==='ArrowLeft'||e.key==='ArrowUp'?-1:1)+board.length)%board.length;draw()}});
+let b=document.createElement('button');b.type='button';b.textContent='ROTATE MIRROR';b.onclick=()=>rotate(selected);controls.append(b);start.onclick=startGame;draw();
+})();
