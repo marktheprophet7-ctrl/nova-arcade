@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const c=document.getElementById('field'),g=c.getContext('2d'),$=id=>document.getElementById(id);
 const W=560,H=450,LANES=[95,218,341,464],COLORS=['#70e5ff','#b995ff','#ff99cf','#ffce7f'];let notes=[],effects=[],run=false,paused=false,elapsed=0,last=0,spawn=0,duration=38,score=0,best=0,combo=0,misses=0,hits=0,feedback='',feedbackTime=0,sound=false,ac,raf;
-try{best=Number(localStorage.getItem('nova-beat-forge-best'))||0}catch{}$('best').textContent=best;
+try{best=Number(Math.max(Number(localStorage.getItem('nova-beat-forge-best')||0),Number(localStorage.getItem('nova-arcade-machine-beat-forge')||0)))||0}catch{}$('best').textContent=best;
 function tone(i){if(!sound)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),gain=ac.createGain();o.type='triangle';o.frequency.value=[220,293.66,369.99,493.88][i];gain.gain.setValueAtTime(.038,ac.currentTime);gain.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.14);o.connect(gain).connect(ac.destination);o.start();o.stop(ac.currentTime+.15)}catch{}}
 $('soundtoggle').onclick=()=>{sound=!sound;$('soundtoggle').textContent='Sound: '+(sound?'On':'Off');$('soundtoggle').setAttribute('aria-pressed',String(sound))};
 function updateScore(n){score+=n;$('score').textContent=Math.floor(score);if(score>best){best=score;$('best').textContent=best;try{localStorage.setItem('nova-beat-forge-best',best)}catch{}}}
