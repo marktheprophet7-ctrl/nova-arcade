@@ -6,7 +6,7 @@ const cols=6,rows=6,S=56,OX=112,OY=55,D=[[1,0],[0,1],[-1,0],[0,-1]],patterns=[
 {start:[5,1,2],target:[0,4],mirrors:[[3,1,'/'],[3,4,'/']]}
 ];
 let score=0,best=0,level=0,board=[],state='menu',selected=0,beam=[],hits=false,sound=false,ac,timer=null;
-try{best=+(localStorage.getItem('nova-laser-mirrors-best')||0)}catch{}$('#best').textContent=best;
+try{best=+(Math.max(Number(localStorage.getItem('nova-laser-mirrors-best')||0),Number(localStorage.getItem('nova-arcade-machine-laser-mirrors')||0)))}catch{}$('#best').textContent=best;
 function tone(f){if(!sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();let o=ac.createOscillator(),v=ac.createGain();o.type='sine';o.frequency.value=f;v.gain.value=.035;o.connect(v);v.connect(ac.destination);o.start();v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.11);o.stop(ac.currentTime+.12)}catch{}}
 $('#soundtoggle').onclick=()=>{sound=!sound;$('#soundtoggle').textContent='Sound: '+(sound?'On':'Off');$('#soundtoggle').setAttribute('aria-pressed',String(sound))};
 function newBoard(){clearTimeout(timer);let p=patterns[(level-1)%patterns.length];board=p.mirrors.map(([x,y,ch])=>({x,y,ch:Math.random()<.5?ch:(ch==='/'?'\\':'/'),correct:ch}));state='play';msg.textContent='Rotate reflectors · Level '+level;start.textContent='NEW PUZZLE';trace();draw();}
