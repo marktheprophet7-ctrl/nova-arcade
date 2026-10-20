@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const $=id=>document.getElementById(id),c=$('field'),g=c.getContext('2d'),W=560,H=448,SYMBOLS=['◆','✦','⬡','●','✚','★','♠','☀','♣','♥','✿','▲'],COLORS=['#ff8cc4','#73f8ed','#ffe39a','#b4a0ff','#91ffbc','#f4a9ff'];
+const $=id=>document.getElementById(id),c=$('field'),g=c.getContext('2d'),W=560,H=448,SYMBOLS=['◆','✦','⬡','●','✚','★','♠','☀','♣','♥','✿','▲','☘','☯','♫','☾'],COLORS=['#ff8cc4','#73f8ed','#ffe39a','#b4a0ff','#91ffbc','#f4a9ff'];
 let running=false,paused=false,stage=1,score=0,best=0,streak=0,matched=0,elapsed=0,cols=4,rows=4,cards=[],open=[],selected=0,locked=0,hintCard=-1,hintTimer=0,transition=0,raf=0,last=0,sound=false,ac=null,particles=[],lastMistake=0;
 try{best=Math.max(+(localStorage.getItem('nova-memory-matrix-best')||0),+(localStorage.getItem('nova-best-3')||0))||0}catch(e){}$('best').textContent=best;
 function tone(f=550,d=.1){if(!sound)return;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;ac=ac||new A();let o=ac.createOscillator(),v=ac.createGain();o.type='sine';o.frequency.value=f;v.gain.setValueAtTime(.024,ac.currentTime);v.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(v).connect(ac.destination);o.start();o.stop(ac.currentTime+d+.01)}catch(e){}}
